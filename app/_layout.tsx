@@ -1,29 +1,45 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { GameProvider } from "@/contexts/GameContext";
+import * as eva from "@eva-design/eva";
+import { ApplicationProvider } from "@ui-kitten/components";
+import { BlurView } from "expo-blur";
+import { Stack } from "expo-router";
+import React from "react";
+import { Platform, StyleSheet } from "react-native";
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+function ModernHeaderBackground() {
+  return (
+    <BlurView
+      tint={Platform.OS === "ios" ? "systemChromeMaterialLight" : "light"}
+      intensity={80}
+      style={StyleSheet.absoluteFill}
+    />
+  );
+}
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  if (!loaded) {
-    // Async font loading only occurs in development.
-    return null;
-  }
-
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <ApplicationProvider {...eva} theme={eva.light}>
+      <GameProvider>
+        <Stack
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: "#fff",
+            },
+            headerTintColor: "#181C24",
+            headerTitleStyle: {
+              fontWeight: "bold",
+              fontSize: 22,
+            },
+            headerBackground: () => <ModernHeaderBackground />,
+            headerShadowVisible: false,
+          }}
+        >
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="player-input" options={{ title: "Player Input" }} />
+          <Stack.Screen name="add-players" options={{ title: "New Game" }} />
+
+        </Stack>
+      </GameProvider>
+    </ApplicationProvider>
   );
 }
