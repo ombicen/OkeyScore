@@ -3,8 +3,8 @@ import * as eva from "@eva-design/eva";
 import { ApplicationProvider } from "@ui-kitten/components";
 import { BlurView } from "expo-blur";
 import { Stack } from "expo-router";
-import React from "react";
-import { Platform, StyleSheet } from "react-native";
+import React, { useEffect } from "react";
+import { Platform, StyleSheet, useColorScheme } from "react-native";
 
 function ModernHeaderBackground() {
   return (
@@ -17,6 +17,21 @@ function ModernHeaderBackground() {
 }
 
 export default function RootLayout() {
+  const colorScheme = useColorScheme();
+
+  useEffect(() => {
+    // Add manifest link to head if not already present
+    if (typeof document !== "undefined") {
+      const existingManifest = document.querySelector('link[rel="manifest"]');
+      if (!existingManifest) {
+        const manifestLink = document.createElement("link");
+        manifestLink.rel = "manifest";
+        manifestLink.href = "/manifest.json";
+        document.head.appendChild(manifestLink);
+      }
+    }
+  }, []);
+
   return (
     <ApplicationProvider {...eva} theme={eva.light}>
       <GameProvider>
@@ -32,12 +47,12 @@ export default function RootLayout() {
             },
             headerBackground: () => <ModernHeaderBackground />,
             headerShadowVisible: false,
+            animation: "slide_from_right",
           }}
         >
+          <Stack.Screen name="index" />
+          <Stack.Screen name="select-rounds" />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="player-input" options={{ title: "Player Input" }} />
-          <Stack.Screen name="add-players" options={{ title: "New Game" }} />
-
         </Stack>
       </GameProvider>
     </ApplicationProvider>

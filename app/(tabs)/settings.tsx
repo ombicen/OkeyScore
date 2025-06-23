@@ -1,6 +1,6 @@
 import { useGame } from "@/contexts/GameContext";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Button, Card, Input, Layout, Text } from "@ui-kitten/components";
+import { Button, Input, Layout, Text } from "@ui-kitten/components";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
@@ -21,7 +21,6 @@ export default function SettingsScreen() {
     colorMultipliers.black.toString()
   );
   const [rounds, setRounds] = useState(defaultRounds.toString());
-  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleSave = () => {
     updateSettings({
@@ -33,29 +32,16 @@ export default function SettingsScreen() {
       },
       defaultRounds: parseInt(rounds) || 10,
     });
-    setShowConfirmation(true);
     setTimeout(() => {
-      setShowConfirmation(false);
       router.back();
     }, 1500);
   };
 
-  const handleReset = () => {
-    setRedMultiplier("2");
-    setBlueMultiplier("3");
-    setYellowMultiplier("4");
-    setBlackMultiplier("5");
-    setRounds("10");
-  };
-
   return (
-    <ScrollView>
+    <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: "#F5F5F7" }}>
       <Layout style={styles.container}>
-        <Card style={styles.card}>
-          <Text category="h5" style={styles.title}>
-            Settings
-          </Text>
-
+        <Text style={styles.sectionTitle}>Settings</Text>
+        <View style={styles.card}>
           <View style={styles.section}>
             <Text category="h6" style={styles.sectionTitle}>
               Color Multipliers
@@ -70,7 +56,7 @@ export default function SettingsScreen() {
                 <MaterialIcons
                   name="palette"
                   size={24}
-                  color="#8F9BB3"
+                  color="#FF6B6B"
                   style={styles.icon}
                 />
               )}
@@ -85,7 +71,7 @@ export default function SettingsScreen() {
                 <MaterialIcons
                   name="palette"
                   size={24}
-                  color="#8F9BB3"
+                  color="#4A90E2"
                   style={styles.icon}
                 />
               )}
@@ -100,7 +86,7 @@ export default function SettingsScreen() {
                 <MaterialIcons
                   name="palette"
                   size={24}
-                  color="#8F9BB3"
+                  color="#FFD93D"
                   style={styles.icon}
                 />
               )}
@@ -115,13 +101,12 @@ export default function SettingsScreen() {
                 <MaterialIcons
                   name="palette"
                   size={24}
-                  color="#8F9BB3"
+                  color="#4A4A4A"
                   style={styles.icon}
                 />
               )}
             />
           </View>
-
           <View style={styles.section}>
             <Text category="h6" style={styles.sectionTitle}>
               Default Rounds
@@ -142,41 +127,15 @@ export default function SettingsScreen() {
               )}
             />
           </View>
-
-          <View style={styles.buttons}>
-            <Button
-              onPress={handleSave}
-              style={[styles.button, styles.saveButton]}
-              disabled={showConfirmation}
-              accessoryRight={() => (
-                <MaterialIcons
-                  name="check"
-                  size={24}
-                  color="#8F9BB3"
-                  style={styles.icon}
-                />
-              )}
-            >
-              {showConfirmation ? "Settings Saved!" : "Save Changes"}
-            </Button>
-            <Button
-              onPress={handleReset}
-              style={[styles.button, styles.resetButton]}
-              status="basic"
-              disabled={showConfirmation}
-              accessoryRight={() => (
-                <MaterialIcons
-                  name="refresh"
-                  size={24}
-                  color="#8F9BB3"
-                  style={styles.icon}
-                />
-              )}
-            >
-              Reset to Defaults
-            </Button>
-          </View>
-        </Card>
+        </View>
+        <Button
+          style={styles.saveButton}
+          status="basic"
+          appearance="filled"
+          onPress={handleSave}
+        >
+          Save Changes
+        </Button>
       </Layout>
     </ScrollView>
   );
@@ -185,43 +144,61 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-  },
-  card: {
-    borderRadius: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  title: {
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  section: {
-    marginBottom: 20,
+    paddingHorizontal: 0,
+    paddingTop: 32,
+    paddingBottom: 48,
+    backgroundColor: "#F5F5F7",
+    alignItems: "center",
   },
   sectionTitle: {
-    marginBottom: 10,
+    fontSize: 25,
+    fontWeight: "700",
+    color: "#1D1D1F",
+    textAlign: "center",
+    marginBottom: 16,
+    letterSpacing: -0.5,
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    paddingVertical: 36,
+    paddingHorizontal: 32,
+    alignItems: "center",
+    marginHorizontal: 16,
+    marginBottom: 32,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 2,
+    width: "92%",
+  },
+  saveButton: {
+    marginTop: 40,
+    borderRadius: 16,
+    backgroundColor: "#0071E3",
+    paddingVertical: 20,
+    width: "92%",
+    alignSelf: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 2,
   },
   input: {
     marginBottom: 15,
+    borderRadius: 14,
+    backgroundColor: "#F7F8FA",
+    borderWidth: 1,
+    borderColor: "#E5E6EA",
+    fontSize: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
-  buttons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 20,
-  },
-  button: {
-    flex: 1,
-    marginHorizontal: 5,
-  },
-  saveButton: {
-    backgroundColor: "#4CAF50",
-  },
-  resetButton: {
-    backgroundColor: "#9E9E9E",
+  section: {
+    marginBottom: 20,
+    width: "100%",
   },
   icon: {
     width: 24,

@@ -12,6 +12,8 @@ export interface Round {
   color: OkeyColor;
   multiplier: number;
   players: Player[];
+  winType?: "regular" | "okey";
+  winner?: string;
 }
 export interface ColorMultipliers {
   red: number;
@@ -34,10 +36,10 @@ export interface Game {
 
 // Default multipliers
 const defaultMultipliers: ColorMultipliers = {
-  red: 2,
-  blue: 3,
-  yellow: 4,
-  black: 5,
+  red: 6,
+  blue: 4,
+  yellow: 5,
+  black: 3,
 };
 
 // Context type

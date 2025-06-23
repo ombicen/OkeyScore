@@ -1,50 +1,50 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
+import { Platform } from "react-native";
 
-export default function TabsLayout() {
+export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-         animation: 'fade', // or 'shift'
-    transitionSpec: {
-      animation: 'timing',
-      config: {
-        duration: 250,
-      },
-    },
-        tabBarActiveTintColor: "#0a7ea4",
-        tabBarInactiveTintColor: "#687076",
+        headerShown: false,
         tabBarStyle: {
-          backgroundColor: "#fff",
-          borderTopWidth: 0.5,
-          borderTopColor: "#eee",
-          height: 60,
+          backgroundColor: "#FFFFFF",
+          borderTopColor: "#E5E6EA",
+          borderTopWidth: 1,
+          paddingTop: 12,
+          paddingBottom: Platform.OS === "ios" ? 28 : 18,
+          paddingHorizontal: 24,
+          minHeight: 85,
         },
+        tabBarActiveTintColor: "#0071E3",
+        tabBarInactiveTintColor: "#000000",
         tabBarLabelStyle: {
-          fontSize: 13,
-          fontWeight: "600",
+          fontSize: 12,
+          fontWeight: "500",
+          letterSpacing: -0.2,
         },
       }}
     >
       <Tabs.Screen
         name="add-players"
         options={{
-          title: "Add Players",
+          title: "Players",
           tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="person-add" color={color} size={size ?? 24} />
+            <MaterialIcons name="people" size={size} color={color} />
           ),
-          headerTitle: "Add Players",
         }}
       />
-   
       <Tabs.Screen
         name="game"
         options={{
-          title: "Current Game",
+          title: "Game",
           tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="sports-esports" color={color} size={size ?? 24} />
+            <MaterialIcons
+              name="play-circle-outline"
+              size={size}
+              color={color}
+            />
           ),
-          headerTitle: "Current Game",
         }}
       />
       <Tabs.Screen
@@ -52,9 +52,8 @@ export default function TabsLayout() {
         options={{
           title: "Results",
           tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="list" color={color} size={size ?? 24} />
+            <MaterialIcons name="bar-chart" size={size} color={color} />
           ),
-          headerTitle: "Results",
         }}
       />
       <Tabs.Screen
@@ -62,9 +61,8 @@ export default function TabsLayout() {
         options={{
           title: "Settings",
           tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="settings" color={color} size={size ?? 24} />
+            <MaterialIcons name="settings" size={size} color={color} />
           ),
-          headerTitle: "Settings",
         }}
       />
     </Tabs>

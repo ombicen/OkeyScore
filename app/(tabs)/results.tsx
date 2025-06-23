@@ -1,9 +1,10 @@
 import { useGame } from "@/contexts/GameContext";
-import { MaterialIcons } from "@expo/vector-icons";
-import { Button, Card, Layout, Text } from "@ui-kitten/components";
+import { Button, Layout, Text } from "@ui-kitten/components";
 import { useRouter } from "expo-router";
 import React from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { Dimensions, ScrollView, StyleSheet, View } from "react-native";
+
+const { width: screenWidth } = Dimensions.get("window");
 
 export default function ResultsScreen() {
   const router = useRouter();
@@ -31,189 +32,337 @@ export default function ResultsScreen() {
     }
   };
 
+  const getWinTypeText = (round: any) => {
+    if (round.winType === "regular") return "Regular Win";
+    if (round.winType === "okey") return "Okey Win";
+    return "";
+  };
+
   const handleNewGame = () => {
     resetGame();
-    router.push("/add-players");
+    router.push("/(tabs)/add-players");
   };
+
+  // Sort players by total points (lower is better)
+  const sortedPlayers = [...playerNames].sort(
+    (a, b) => calculateTotalPoints(a) - calculateTotalPoints(b)
+  );
 
   if (rounds.length === 0) {
     return (
-      <Layout style={styles.container}>
-        <Card style={styles.card}>
-          <Text category="h5" style={styles.title}>
-            No Game Data
-          </Text>
-          <Text category="p1" style={styles.subtitle}>
-            Start a new game to see results.
-          </Text>
-          <Button
-            onPress={handleNewGame}
-            style={styles.button}
-            accessoryRight={() => (
-              <MaterialIcons
-                name="play-arrow"
-                size={24}
-                color="#8F9BB3"
-                style={styles.icon}
-              />
-            )}
-          >
-            Start New Game
-          </Button>
-        </Card>
-      </Layout>
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1, backgroundColor: "#F5F5F7" }}
+      >
+        <Layout style={styles.container}>
+          <View style={styles.emptyCard}>
+            <Text style={styles.sectionTitle}>No Game Data</Text>
+            <Text style={styles.sectionSubtitle}>
+              Start a new game to see results.
+            </Text>
+            <Button
+              style={styles.resetButton}
+              status="basic"
+              appearance="filled"
+              onPress={handleNewGame}
+            >
+              Start New Game
+            </Button>
+          </View>
+        </Layout>
+      </ScrollView>
     );
   }
 
   return (
-    <Layout style={styles.container}>
-      <Card style={styles.card}>
-        <Text category="h5" style={styles.title}>
-          Game Results
-        </Text>
-
-        <ScrollView style={styles.scrollView}>
-          <View style={styles.table}>
-            <View style={styles.tableHeader}>
-              <Text category="s1" style={[styles.cell, styles.headerCell]}>
-                Round
-              </Text>
-              <Text category="s1" style={[styles.cell, styles.headerCell]}>
-                Color
-              </Text>
-              {playerNames.map((name) => (
-                <Text
-                  key={name}
-                  category="s1"
-                  style={[styles.cell, styles.headerCell]}
-                >
-                  {name}
+    <ScrollView
+      contentContainerStyle={{ flexGrow: 1, backgroundColor: "#F5F5F7" }}
+    >
+      <Layout style={styles.container}>
+        {/* --- Final Rankings --- */}
+        <Text style={styles.sectionTitle}>Final Rankings</Text>
+        <View style={styles.rankingsContainer}>
+          {sortedPlayers.map((name, index) => (
+            <View
+              key={name}
+              style={[styles.rankingCard, index === 0 && styles.winnerCard]}
+            >
+              <View style={styles.rankingInfo}>
+                <Text style={styles.rankingPosition}>#{index + 1}</Text>
+                {index === 0 && <Text style={styles.winnerBadge}>🏆</Text>}
+              </View>
+              <View style={styles.playerInfo}>
+                <Text style={styles.playerName}>{name}</Text>
+                <Text style={styles.totalPoints}>
+                  {calculateTotalPoints(name)} pts
                 </Text>
-              ))}
+              </View>
             </View>
+          ))}
+        </View>
 
-            {rounds.map((round, index) => (
-              <View key={index} style={styles.tableRow}>
-                <Text category="p1" style={styles.cell}>
-                  {index + 1}
-                </Text>
-                <Text category="p1" style={styles.cell}>
-                  {getColorEmoji(round.color)} {round.multiplier}x
-                </Text>
+        {/* --- Round Details --- */}
+        <Text style={styles.sectionSubtitle}>Round Details</Text>
+        <View style={styles.roundsContainer}>
+          {rounds.map((round, index) => (
+            <View key={index} style={styles.roundCard}>
+              <View style={styles.roundHeader}>
+                <View style={styles.roundInfo}>
+                  <Text style={styles.roundNr}>Round {index + 1}</Text>
+                  <Text style={styles.roundColor}>
+                    {getColorEmoji(round.color)}
+                  </Text>
+                  <Text style={styles.roundMultiplier}>
+                    x{round.multiplier}
+                  </Text>
+                </View>
+                {round.winType && (
+                  <View style={styles.winInfo}>
+                    <Text style={styles.winType}>{getWinTypeText(round)}</Text>
+                    {round.winner && (
+                      <Text style={styles.winnerName}>
+                        Winner: {round.winner}
+                      </Text>
+                    )}
+                  </View>
+                )}
+              </View>
+
+              <View style={styles.playersGrid}>
                 {playerNames.map((name) => {
                   const playerRound = round.players.find(
                     (p) => p.name === name
                   );
+                  const isWinner = round.winner === name;
                   return (
-                    <Text key={name} category="p1" style={styles.cell}>
-                      {playerRound?.penaltyPoints || 0}
-                    </Text>
+                    <View
+                      key={name}
+                      style={[
+                        styles.playerScoreCard,
+                        isWinner && styles.winnerScoreCard,
+                      ]}
+                    >
+                      <Text style={styles.playerScoreName}>{name}</Text>
+                      <Text
+                        style={[
+                          styles.playerScore,
+                          isWinner && styles.winnerScore,
+                        ]}
+                      >
+                        {playerRound?.penaltyPoints ?? "-"}
+                      </Text>
+                    </View>
                   );
                 })}
               </View>
-            ))}
-
-            <View style={[styles.tableRow, styles.totalRow]}>
-              <Text category="s1" style={[styles.cell, styles.totalCell]}>
-                Total
-              </Text>
-              <Text category="s1" style={[styles.cell, styles.totalCell]}>
-                -
-              </Text>
-              {playerNames.map((name) => (
-                <Text
-                  key={name}
-                  category="s1"
-                  style={[styles.cell, styles.totalCell]}
-                >
-                  {calculateTotalPoints(name)}
-                </Text>
-              ))}
             </View>
-          </View>
-        </ScrollView>
+          ))}
+        </View>
 
         <Button
-          onPress={handleNewGame}
-          style={styles.button}
-          accessoryRight={() => (
-            <MaterialIcons
-              name="play-arrow"
-              size={24}
-              color="#8F9BB3"
-              style={styles.icon}
-            />
-          )}
+          style={styles.resetButton}
+          status="basic"
+          appearance="filled"
+          onPress={() => {
+            resetGame();
+            router.replace("/(tabs)/add-players");
+          }}
         >
-          Start New Game
+          Reset Game
         </Button>
-      </Card>
-    </Layout>
+      </Layout>
+    </ScrollView>
   );
 }
 
+// --- Apple-inspired, iPhone product page style, screenshot-matched colors ---
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    paddingBottom: 40,
+    backgroundColor: "#F5F5F7",
   },
-  card: {
-    borderRadius: 15,
+  emptyCard: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    paddingVertical: 48,
+    paddingHorizontal: 32,
+    alignItems: "center",
+    marginTop: 64,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 2,
+    width: "100%",
+  },
+  sectionTitle: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#1D1D1F",
+    textAlign: "center",
+    marginBottom: 24,
+    letterSpacing: -0.5,
+  },
+  sectionSubtitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#1D1D1F",
+    textAlign: "center",
+    marginTop: 32,
+    marginBottom: 20,
+    letterSpacing: -0.2,
+  },
+  rankingsContainer: {
+    width: "100%",
+    gap: 12,
+  },
+  rankingCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  title: {
-    textAlign: "center",
-    marginBottom: 20,
+  winnerCard: {
+    backgroundColor: "#F0F8FF",
+    borderWidth: 2,
+    borderColor: "#0071E3",
   },
-  subtitle: {
-    textAlign: "center",
-    marginBottom: 20,
-    color: "#8F9BB3",
-  },
-  scrollView: {
-    maxHeight: 400,
-  },
-  table: {
-    marginBottom: 20,
-  },
-  tableHeader: {
+  rankingInfo: {
     flexDirection: "row",
-    borderBottomWidth: 2,
-    borderBottomColor: "#E4E9F2",
-    paddingBottom: 10,
-    marginBottom: 10,
+    alignItems: "center",
+    marginRight: 16,
   },
-  tableRow: {
-    flexDirection: "row",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E4E9F2",
-    paddingVertical: 10,
+  rankingPosition: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#1D1D1F",
+    marginRight: 8,
   },
-  cell: {
+  winnerBadge: {
+    fontSize: 20,
+  },
+  playerInfo: {
     flex: 1,
+  },
+  playerName: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1D1D1F",
+    marginBottom: 4,
+  },
+  totalPoints: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#0071E3",
+  },
+  roundsContainer: {
+    width: "100%",
+    gap: 16,
+  },
+  roundCard: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  roundHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E6EA",
+  },
+  roundInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  roundNr: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1D1D1F",
+    marginRight: 8,
+  },
+  roundColor: {
+    fontSize: 20,
+    marginRight: 6,
+  },
+  roundMultiplier: {
+    fontSize: 14,
+    color: "#86868B",
+    fontWeight: "500",
+  },
+  winInfo: {
+    alignItems: "flex-end",
+  },
+  winType: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#0071E3",
+    marginBottom: 2,
+  },
+  winnerName: {
+    fontSize: 11,
+    color: "#86868B",
+  },
+  playersGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  playerScoreCard: {
+    backgroundColor: "#F8F9FA",
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    alignItems: "center",
+    minWidth: (screenWidth - 80) / 3,
+    flex: 1,
+  },
+  winnerScoreCard: {
+    backgroundColor: "#E3F2FD",
+    borderWidth: 1,
+    borderColor: "#0071E3",
+  },
+  playerScoreName: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#1D1D1F",
+    marginBottom: 4,
     textAlign: "center",
   },
-  headerCell: {
-    fontWeight: "bold",
-    color: "#8F9BB3",
+  playerScore: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#1D1D1F",
   },
-  totalRow: {
-    borderTopWidth: 2,
-    borderTopColor: "#E4E9F2",
-    marginTop: 10,
+  winnerScore: {
+    color: "#0071E3",
   },
-  totalCell: {
-    fontWeight: "bold",
-  },
-  button: {
-    marginTop: 20,
-  },
-  icon: {
-    width: 24,
-    height: 24,
+  resetButton: {
+    marginTop: 32,
+    borderRadius: 16,
+    backgroundColor: "#0071E3",
+    paddingVertical: 16,
+    width: "100%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 2,
   },
 });

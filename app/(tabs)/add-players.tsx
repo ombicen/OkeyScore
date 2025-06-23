@@ -1,9 +1,8 @@
 import { useGame } from "@/contexts/GameContext";
-import { MaterialIcons } from "@expo/vector-icons";
-import { Button, Card, Input, Layout, Text } from "@ui-kitten/components";
+import { Button, Input, Layout, Text } from "@ui-kitten/components";
 import { useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
-import { StyleSheet } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 
 export default function AddPlayersScreen() {
   const router = useRouter();
@@ -36,106 +35,132 @@ export default function AddPlayersScreen() {
   };
 
   return (
-    <Layout style={styles.container}>
-      <Card style={styles.card}>
-        <Text category="h5" style={styles.title}>
-          Add Players
-        </Text>
-        <Text category="s1" style={styles.subtitle}>
-          Enter at least 2 players to start
-        </Text>
-
-        {players.map((name, index) => (
-          <Input
-            key={index}
-            ref={(el) => {
-              inputRefs.current[index] = el;
-            }}
-            placeholder={`Player ${index + 1} Name`}
-            value={name}
-            onChangeText={(text) => handlePlayerNameChange(index, text)}
-            style={styles.input}
-            accessoryLeft={() => (
-              <MaterialIcons
-                name="person"
-                size={24}
-                color="#8F9BB3"
-                style={styles.icon}
-              />
-            )}
-          />
-        ))}
-
-        <Button
-          appearance="ghost"
-          onPress={handleAddPlayer}
-          style={styles.addButton}
-          accessoryLeft={() => (
-            <MaterialIcons
-              name="person-add"
-              size={24}
-              color="#8F9BB3"
-              style={styles.icon}
+    <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: "#F5F5F7" }} keyboardShouldPersistTaps="handled">
+      <Layout style={styles.container}>
+        <Text style={styles.sectionTitle}>Add Players</Text>
+        <Text style={styles.sectionSubtitle}>Enter player names to get started</Text>
+        <View style={styles.inputCard}>
+          {players.map((name, index) => (
+            <Input
+              key={index}
+              ref={(el) => {
+                inputRefs.current[index] = el;
+              }}
+              style={styles.input}
+              value={name}
+              placeholder={`Player ${index + 1}`}
+              onChangeText={(text) => handlePlayerNameChange(index, text)}
+              textStyle={styles.inputText}
+              placeholderTextColor="#86868B"
+              size="large"
+              status="basic"
+              autoCapitalize="words"
             />
-          )}
-        >
-          Add Player
-        </Button>
-
+          ))}
+          <Button
+            style={styles.addButton}
+            appearance="ghost"
+            status="primary"
+            onPress={handleAddPlayer}
+            disabled={players.length >= 6}
+          >
+            + Add Player
+          </Button>
+        </View>
         <Button
+          style={styles.nextButton}
+          status="basic"
+          appearance="filled"
           onPress={handleContinue}
-          style={styles.continueButton}
-          disabled={players.filter((name) => name.trim() !== "").length < 2}
-          accessoryRight={() => (
-            <MaterialIcons
-              name="arrow-forward"
-              size={24}
-              color="#8F9BB3"
-              style={styles.icon}
-            />
-          )}
+          disabled={players.some((n) => !n.trim()) || players.length < 2}
         >
-          Continue
+          Next
         </Button>
-      </Card>
-    </Layout>
+      </Layout>
+    </ScrollView>
   );
 }
 
+// --- Apple-inspired, iPhone product page style, screenshot-matched colors ---
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    justifyContent: "center",
+    paddingHorizontal: 0,
+    paddingTop: 32,
+    paddingBottom: 48,
+    backgroundColor: "#F5F5F7",
+    alignItems: "center",
   },
-  card: {
-    borderRadius: 15,
+  sectionTitle: {
+    fontSize: 25,
+    fontWeight: "700",
+    color: "#1D1D1F",
+    textAlign: "center",
+    marginBottom: 16,
+    letterSpacing: -0.5,
+  },
+  sectionSubtitle: {
+    fontSize: 16,
+    fontWeight: "400",
+    color: "#6E6E73",
+    textAlign: "center",
+    marginBottom: 32,
+    letterSpacing: -0.2,
+  },
+  inputCard: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    paddingVertical: 36,
+    paddingHorizontal: 32,
+    alignItems: "center",
+    marginHorizontal: 16,
+    marginBottom: 32,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  title: {
-    textAlign: "center",
-    marginBottom: 10,
-  },
-  subtitle: {
-    textAlign: "center",
-    marginBottom: 20,
-    opacity: 0.7,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 2,
+    width: "92%",
   },
   input: {
-    marginBottom: 15,
+    backgroundColor: "#F5F5F7",
+    borderRadius: 14,
+    marginBottom: 18,
+    fontSize: 20,
+    borderWidth: 0,
+    paddingHorizontal: 18,
+    paddingVertical: 16,
+    width: "100%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.02,
+    shadowRadius: 6,
+    elevation: 1,
+  },
+  inputText: {
+    fontSize: 16,
+    color: "#1D1D1F",
+    fontWeight: "500",
   },
   addButton: {
-    marginBottom: 20,
+    marginTop: 8,
+    borderRadius: 14,
+    backgroundColor: "#E5E5EA",
+    width: "100%",
+    paddingVertical: 16,
+    alignSelf: "center",
   },
-  continueButton: {
-    marginTop: 10,
-  },
-  icon: {
-    width: 24,
-    height: 24,
+  nextButton: {
+    marginTop: 40,
+    borderRadius: 16,
+    backgroundColor: "#0071E3",
+    paddingVertical: 20,
+    width: "92%",
+    alignSelf: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 2,
   },
 });

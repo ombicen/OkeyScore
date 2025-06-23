@@ -26,9 +26,37 @@
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/favicon.png",
+      "themeColor": "#0071E3",
+      "backgroundColor": "#F5F5F7",
       "meta": {
         "apple-mobile-web-app-capable": "yes",
-        "apple-mobile-web-app-status-bar-style": "default"
+        "apple-mobile-web-app-status-bar-style": "default",
+        "viewport": "width=device-width, initial-scale=1, shrink-to-fit=no"
+      },
+      "manifest": {
+        "name": "OkeyScore - Score Tracker",
+        "short_name": "OkeyScore",
+        "description": "A modern Okey score tracking app",
+        "display": "standalone",
+        "start_url": ".",
+        "scope": "/",
+        "theme_color": "#0071E3",
+        "background_color": "#F5F5F7",
+        "orientation": "portrait",
+        "icons": [
+          {
+            "src": "./assets/images/icon.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+          },
+          {
+            "src": "./assets/images/adaptive-icon.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+          }
+        ]
       }
     },
     "plugins": [
@@ -41,7 +69,8 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
