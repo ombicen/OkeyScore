@@ -7,6 +7,7 @@ import {
   Text,
   View,
 } from "react-native";
+import icon192x192 from "../assets/images/icons/icon-128x128.png";
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -72,7 +73,7 @@ const SplashPage: React.FC<SplashPageProps> = ({ message = "Loading..." }) => {
         {/* App Icon */}
         <View style={styles.iconContainer}>
           <Image
-            source={require("../assets/images/icons/icon-192x192.png")}
+            source={icon192x192}
             style={styles.icon}
             resizeMode="contain"
           />
