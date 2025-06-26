@@ -1,0 +1,135 @@
+/* Remove blue focus outline from input fields and interactive elements */
+*:focus {
+  outline: none !important;
+}
+
+/* Remove focus outline specifically for input elements */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove focus outline for UI Kitten components */
+[data-focus] {
+  outline: none !important;
+}
+
+/* Remove focus outline for buttons */
+button:focus {
+  outline: none !important;
+}
+
+/* Remove focus outline for any element with focus */
+*:focus-visible {
+  outline: none !important;
+}
+
+/* Ensure no default browser styling interferes */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Remove any default focus styles */
+*:focus {
+  outline: 0 !important;
+  outline-offset: 0 !important;
+}
+
+/* Prevent app from being resizable */
+html, body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 0;
+  resize: none;
+  /* Prevent zoom but allow normal touch interactions */
+  touch-action: pan-x pan-y;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent any element from being resizable */
+* {
+  resize: none !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+}
+
+/* Ensure the app container takes full viewport */
+#root, [data-reactroot] {
+  width: 100vw !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  /* Prevent zoom but allow normal touch interactions */
+  touch-action: pan-x pan-y !important;
+}
+
+/* Prevent text selection */
+* {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Disable context menu */
+* {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Comprehensive zoom prevention */
+html {
+  touch-action: pan-x pan-y;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  touch-action: pan-x pan-y;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Allow normal touch interactions for interactive elements */
+input, textarea, select, button, [role="button"], [tabindex], [data-testid], [class*="button"], [class*="Button"] {
+  touch-action: manipulation !important;
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+/* Specific zoom prevention for the entire app */
+#root, [data-reactroot], html, body {
+  /* Disable pinch zoom */
+  touch-action: pan-x pan-y !important;
+  /* Prevent double-tap zoom */
+  -webkit-touch-callout: none !important;
+  /* Prevent text selection */
+  -webkit-user-select: none !important;
+  /* Remove tap highlights */
+  -webkit-tap-highlight-color: transparent !important;
+}

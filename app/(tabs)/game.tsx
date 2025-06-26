@@ -1,3 +1,4 @@
+import { t } from "@/constants/Translations";
 import { useGame } from "@/contexts/GameContext";
 import { Layout } from "@ui-kitten/components";
 import { useRouter } from "expo-router";
@@ -19,8 +20,9 @@ export default function GameScreen() {
     rounds,
     colorMultipliers,
     addRound,
-    resetGame,
+    resetRoundsOnly,
   } = useGame();
+
   const [selectedColor, setSelectedColor] = useState<
     "red" | "blue" | "yellow" | "black" | null
   >(null);
@@ -28,6 +30,31 @@ export default function GameScreen() {
   const [points, setPoints] = useState<{ [key: string]: string }>({});
   const [winType, setWinType] = useState<"regular" | "okey" | null>(null);
   const [winner, setWinner] = useState<string | null>(null);
+
+  // Check if we have players and rounds set up
+  if (playerNames.length === 0) {
+    return (
+      <EmptyState
+        icon="people-outline"
+        title={t("noPlayersAdded")}
+        subtitle={t("noPlayersSubtitle")}
+        buttonText={t("addPlayers")}
+        onButtonPress={() => router.push("/(tabs)/add-players")}
+      />
+    );
+  }
+
+  if (totalRounds === 0) {
+    return (
+      <EmptyState
+        icon="repeat"
+        title={t("noRoundsSet")}
+        subtitle={t("gameNoRoundsSubtitle")}
+        buttonText={t("selectRounds")}
+        onButtonPress={() => router.push("/select-rounds")}
+      />
+    );
+  }
 
   const handleColorSelect = (color: "red" | "blue" | "yellow" | "black") => {
     setSelectedColor(color);
@@ -38,24 +65,77 @@ export default function GameScreen() {
   };
 
   const handlePointsChange = (value: string) => {
-    // Only allow numbers
     const numericValue = value.replace(/[^0-9]/g, "");
     setPoints({ ...points, [playerNames[currentPlayerIndex]]: numericValue });
   };
 
-  const handleNextPlayer = () => {
+  const handleWinSelection = (type: "regular" | "okey") => {
+    const currentWinner = playerNames[currentPlayerIndex];
+
+    // Immediately continue to next player
     if (currentPlayerIndex < playerNames.length - 1) {
+      setWinType(type);
+      setWinner(currentWinner);
       setCurrentPlayerIndex(currentPlayerIndex + 1);
     } else {
-      handleSubmit();
+      // For last player, call handleSubmit with the winner info directly
+      handleSubmitWithWinner(type, currentWinner);
     }
   };
 
-  const handleWinSelection = (type: "regular" | "okey") => {
-    setWinType(type);
-    setWinner(playerNames[currentPlayerIndex]);
+  const handleSubmitWithWinner = (
+    winType: "regular" | "okey",
+    winner: string
+  ) => {
+    if (!selectedColor) return;
 
-    // Immediately continue to next player
+    const currentMultiplier = colorMultipliers[selectedColor];
+
+    const newRound = {
+      color: selectedColor,
+      multiplier: currentMultiplier,
+      players: playerNames.map((name) => {
+        const pointsNum = parseInt(points[name]) || 0;
+        let finalPoints = pointsNum * currentMultiplier;
+
+        // Apply win logic
+        if (winner && winType) {
+          if (name === winner) {
+            // Winner gets negative points
+            finalPoints = -(20 * currentMultiplier);
+          } else {
+            finalPoints = pointsNum * currentMultiplier;
+
+            // For okey win, double the points again (4x total)
+            if (winType === "okey") {
+              finalPoints = finalPoints * 2;
+            }
+          }
+        }
+
+        return {
+          name,
+          remainingPoints: pointsNum,
+          penaltyPoints: finalPoints,
+        };
+      }),
+      winType: winType,
+      winner: winner,
+    };
+
+    addRound(newRound);
+    setSelectedColor(null);
+    setCurrentPlayerIndex(0);
+    setPoints({});
+    setWinType(null);
+    setWinner(null);
+
+    if (rounds.length + 1 >= totalRounds) {
+      router.push("/(tabs)/results");
+    }
+  };
+
+  const handleNextPlayer = () => {
     if (currentPlayerIndex < playerNames.length - 1) {
       setCurrentPlayerIndex(currentPlayerIndex + 1);
     } else {
@@ -67,7 +147,6 @@ export default function GameScreen() {
     if (!selectedColor) return;
 
     const currentMultiplier = colorMultipliers[selectedColor];
-    const currentPlayer = playerNames[currentPlayerIndex];
 
     const newRound = {
       color: selectedColor,
@@ -109,12 +188,11 @@ export default function GameScreen() {
     setWinner(null);
 
     if (rounds.length + 1 >= totalRounds) {
-      router.push("/results");
+      router.push("/(tabs)/results");
     }
   };
 
-  const handleReset = () => {
-    resetGame();
+  const handleBack = () => {
     setSelectedColor(null);
     setCurrentPlayerIndex(0);
     setPoints({});
@@ -122,49 +200,14 @@ export default function GameScreen() {
     setWinner(null);
   };
 
-  // Empty state for no players
-  if (playerNames.length === 0) {
-    return (
-      <Layout style={styles.container}>
-        <ScrollView
-          contentContainerStyle={styles.scrollContainer}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.card}>
-            <EmptyState
-              icon="people-outline"
-              title="No Players Added"
-              subtitle="Please add players before starting a game."
-              buttonText="Add Players"
-              onButtonPress={() => router.push("/(tabs)/add-players")}
-            />
-          </View>
-        </ScrollView>
-      </Layout>
-    );
-  }
-
-  // Empty state for no rounds
-  if (totalRounds === 0) {
-    return (
-      <Layout style={styles.container}>
-        <ScrollView
-          contentContainerStyle={styles.scrollContainer}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.card}>
-            <EmptyState
-              icon="repeat"
-              title="No Rounds Set"
-              subtitle="Please set the number of rounds before starting a game."
-              buttonText="Set Rounds"
-              onButtonPress={() => router.push("/select-rounds")}
-            />
-          </View>
-        </ScrollView>
-      </Layout>
-    );
-  }
+  const handleResetRoundsOnly = () => {
+    resetRoundsOnly();
+    setSelectedColor(null);
+    setCurrentPlayerIndex(0);
+    setPoints({});
+    setWinType(null);
+    setWinner(null);
+  };
 
   // Player input state
   if (selectedColor) {
@@ -201,7 +244,9 @@ export default function GameScreen() {
               totalPlayers={playerNames.length}
               hasPoints={!!points[currentPlayer]}
               onNextPlayer={handleNextPlayer}
-              onBack={() => setSelectedColor(null)}
+              onBack={handleBack}
+              onResetRoundsOnly={handleResetRoundsOnly}
+              showResetRoundsOnly={true}
             />
           </View>
         </ScrollView>
@@ -235,8 +280,8 @@ export default function GameScreen() {
             hasPoints={true}
             onNextPlayer={() => {}}
             onBack={() => {}}
-            onReset={handleReset}
-            showReset={true}
+            onResetRoundsOnly={handleResetRoundsOnly}
+            showResetRoundsOnly={true}
           />
         </View>
       </ScrollView>
@@ -253,19 +298,15 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingTop: 20,
     paddingBottom: 40,
-    paddingHorizontal: 16,
   },
   card: {
     backgroundColor: "#fff",
     borderRadius: 24,
     paddingVertical: 32,
     paddingHorizontal: 24,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.08,
-    shadowRadius: 24,
+    boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.08)",
     elevation: 4,
     minHeight: 400,
+    width: "100%",
   },
 });

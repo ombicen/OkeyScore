@@ -1,7 +1,8 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { Button, Text } from "@ui-kitten/components";
+import { Text } from "@ui-kitten/components";
 import React from "react";
 import { StyleSheet, View } from "react-native";
+import ModernButton from "./ModernButton";
 
 interface EmptyStateProps {
   icon: keyof typeof MaterialIcons.glyphMap;
@@ -19,43 +20,47 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   onButtonPress,
 }) => {
   return (
-    <View style={styles.emptyStateContainer}>
-      <MaterialIcons
-        name={icon}
-        size={64}
-        color="#8F9BB3"
-        style={styles.emptyIcon}
-      />
-      <Text category="h4" style={styles.title}>
-        {title}
-      </Text>
-      <Text category="p1" style={styles.subtitle}>
-        {subtitle}
-      </Text>
-      <Button
-        onPress={onButtonPress}
-        style={styles.primaryButton}
-        size="large"
-        accessoryRight={() => (
-          <MaterialIcons
-            name="arrow-forward"
-            size={24}
-            color="#FFFFFF"
-            style={styles.icon}
-          />
-        )}
-      >
-        {buttonText}
-      </Button>
+    <View
+      style={{
+        paddingHorizontal: 16,
+        width: "100%",
+      }}
+    >
+      <View style={styles.container}>
+        <MaterialIcons
+          name={icon}
+          size={64}
+          color="#8F9BB3"
+          style={styles.emptyIcon}
+        />
+        <Text category="h4" style={styles.title}>
+          {title}
+        </Text>
+        <Text category="p1" style={styles.subtitle}>
+          {subtitle}
+        </Text>
+        <ModernButton
+          title={buttonText}
+          onPress={onButtonPress}
+          style={styles.primaryButton}
+          variant="primary"
+        />
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  emptyStateContainer: {
+  container: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    paddingVertical: 48,
+    paddingHorizontal: 32,
     alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 40,
+    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.08)",
+    elevation: 2,
+    width: "100%",
+    marginTop: 64,
   },
   emptyIcon: {
     marginBottom: 24,
@@ -76,15 +81,10 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   primaryButton: {
-    backgroundColor: "#0071E3",
-    borderRadius: 16,
-    paddingVertical: 16,
+    borderRadius: 6,
+    height: 48,
     paddingHorizontal: 32,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
+    marginBottom: 16,
   },
   icon: {
     width: 24,

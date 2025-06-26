@@ -58,6 +58,8 @@ interface GameContextType {
   addPlayerPoints: (points: number) => void;
   endRound: () => void;
   resetGame: () => void;
+  resetRoundsOnly: () => void;
+  resetSettings: () => void;
   addRound: (round: Round) => void;
   setTotalRounds: (rounds: number) => void;
   addPlayer: (name: string) => void;
@@ -80,22 +82,41 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [multipliers, setMultipliers] =
     useState<Record<OkeyColor, number>>(defaultMultipliers);
 
-  // Load game data from AsyncStorage on mount
+  // Load game data and settings from AsyncStorage on mount
   useEffect(() => {
-    const loadGame = async () => {
+    const loadData = async () => {
       try {
+        // Load game data
         const savedGame = await AsyncStorage.getItem("game");
-        if (savedGame) setGame(JSON.parse(savedGame));
+        if (savedGame) {
+          const parsedGame = JSON.parse(savedGame);
+          setGame(parsedGame);
+        }
+
+        // Load multipliers
         const savedMultipliers = await AsyncStorage.getItem("multipliers");
-        if (savedMultipliers) setMultipliers(JSON.parse(savedMultipliers));
+        if (savedMultipliers) {
+          setMultipliers(JSON.parse(savedMultipliers));
+        }
+
+        // Load settings separately
+        const savedSettings = await AsyncStorage.getItem("settings");
+        if (savedSettings) {
+          const settings = JSON.parse(savedSettings);
+          setGame((prev) => ({
+            ...prev,
+            colorMultipliers: settings.colorMultipliers || defaultMultipliers,
+            defaultRounds: settings.defaultRounds || 10,
+          }));
+        }
       } catch (error) {
-        console.error("Error loading game data:", error);
+        console.error("Error loading data:", error);
       }
     };
-    loadGame();
+    loadData();
   }, []);
 
-  // Save game data to AsyncStorage whenever game, multipliers, or playerNames change
+  // Save game data to AsyncStorage whenever game or multipliers change
   useEffect(() => {
     const saveGame = async () => {
       try {
@@ -107,6 +128,22 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     };
     saveGame();
   }, [game, multipliers]);
+
+  // Save settings separately whenever they change
+  useEffect(() => {
+    const saveSettings = async () => {
+      try {
+        const settings = {
+          colorMultipliers: game.colorMultipliers,
+          defaultRounds: game.defaultRounds,
+        };
+        await AsyncStorage.setItem("settings", JSON.stringify(settings));
+      } catch (error) {
+        console.error("Error saving settings:", error);
+      }
+    };
+    saveSettings();
+  }, [game.colorMultipliers, game.defaultRounds]);
 
   const startNewRound = (color: OkeyColor) => {
     const newRound: Round = {
@@ -146,14 +183,22 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   };
 
   const resetGame = () => {
-    setGame({
-      playerNames: [], // Also clear player names
+    setGame((prev) => ({
+      ...prev,
+      playerNames: [],
       totalRounds: 0,
       currentRound: 0,
       rounds: [],
-      colorMultipliers: defaultMultipliers,
-      defaultRounds: 10,
-    });
+    }));
+    setCurrentRound(null);
+  };
+
+  const resetRoundsOnly = () => {
+    setGame((prev) => ({
+      ...prev,
+      rounds: [],
+      currentRound: 0,
+    }));
     setCurrentRound(null);
   };
 
@@ -192,6 +237,21 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     }));
   };
 
+  const resetSettings = async () => {
+    setGame((prev) => ({
+      ...prev,
+      colorMultipliers: defaultMultipliers,
+      defaultRounds: 10,
+    }));
+
+    // Clear settings from AsyncStorage
+    try {
+      await AsyncStorage.removeItem("settings");
+    } catch (error) {
+      console.error("Error clearing settings:", error);
+    }
+  };
+
   return (
     <GameContext.Provider
       value={{
@@ -209,6 +269,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         addPlayerPoints,
         endRound,
         resetGame,
+        resetRoundsOnly,
+        resetSettings,
         addRound,
         setTotalRounds,
         addPlayer,

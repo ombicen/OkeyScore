@@ -1,3 +1,4 @@
+import { t } from "@/constants/Translations";
 import { Button, Text } from "@ui-kitten/components";
 import React from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
@@ -35,7 +36,7 @@ const ColorSelector: React.FC<ColorSelectorProps> = ({
   return (
     <View style={styles.colorSection}>
       <Text category="h6" style={styles.sectionTitle}>
-        Select Color
+        {t("colorMultipliers")}
       </Text>
       <View style={styles.colorGrid}>
         {["red", "blue", "yellow", "black"].map((color) => (
@@ -87,10 +88,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#FFFFFF",
     borderWidth: 0,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 20,
+    boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.12)",
     elevation: 8,
     position: "relative",
     overflow: "hidden",
@@ -100,10 +98,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderColor: "#0071E3",
     borderWidth: 3,
-    shadowColor: "#0071E3",
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.3,
-    shadowRadius: 24,
+    boxShadow: "0px 12px 24px rgba(0, 113, 227, 0.3)",
     elevation: 12,
   },
   colorContainer: {
@@ -116,9 +111,10 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#1D1D1F",
     letterSpacing: 0.5,
-    textShadowColor: "rgba(0, 0, 0, 0.1)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+  },
+  colorName: {
+    fontSize: 14,
+    fontWeight: "700",
   },
 });
 

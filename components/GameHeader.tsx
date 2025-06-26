@@ -1,3 +1,4 @@
+import { t } from "@/constants/Translations";
 import { Text } from "@ui-kitten/components";
 import React from "react";
 import { StyleSheet, View } from "react-native";
@@ -21,11 +22,26 @@ const GameHeader: React.FC<GameHeaderProps> = ({
   selectedColor,
   colorMultipliers,
 }) => {
+  const getColorName = (color: string) => {
+    switch (color) {
+      case "red":
+        return t("red");
+      case "blue":
+        return t("blue");
+      case "yellow":
+        return t("yellow");
+      case "black":
+        return t("black");
+      default:
+        return color;
+    }
+  };
+
   return (
     <View style={styles.gameHeader}>
       <View style={styles.roundIndicator}>
         <Text category="h6" style={styles.roundText}>
-          Round {currentRound} of {totalRounds}
+          {t("round")} {currentRound} {t("of")} {totalRounds}
         </Text>
         <View style={styles.progressBar}>
           <View
@@ -41,8 +57,7 @@ const GameHeader: React.FC<GameHeaderProps> = ({
         <View style={styles.selectedColorDisplay}>
           <HeartIcon color={selectedColor} size={24} />
           <Text category="s1" style={styles.colorName}>
-            {selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1)} •{" "}
-            {colorMultipliers[selectedColor]}x
+            {getColorName(selectedColor)} • {colorMultipliers[selectedColor]}x
           </Text>
         </View>
       )}

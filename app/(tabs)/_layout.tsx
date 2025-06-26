@@ -1,8 +1,13 @@
+import { t } from "@/constants/Translations";
+import { useLanguageRefresh } from "@/hooks/useLanguageRefresh";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { Platform } from "react-native";
 
 export default function TabLayout() {
+  // This hook ensures the component re-renders when language changes
+  useLanguageRefresh();
+
   return (
     <Tabs
       screenOptions={{
@@ -28,7 +33,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="add-players"
         options={{
-          title: "Players",
+          title: t("addPlayers"),
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="people" size={size} color={color} />
           ),
@@ -37,7 +42,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="game"
         options={{
-          title: "Game",
+          title: t("game"),
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons
               name="play-circle-outline"
@@ -50,7 +55,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="results"
         options={{
-          title: "Results",
+          title: t("results"),
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="bar-chart" size={size} color={color} />
           ),
@@ -59,7 +64,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: "Settings",
+          title: t("settings"),
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="settings" size={size} color={color} />
           ),

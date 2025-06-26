@@ -1,4 +1,8 @@
+import ModernButton from "@/components/ModernButton";
+import { t } from "@/constants/Translations";
 import { useGame } from "@/contexts/GameContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguageRefresh } from "@/hooks/useLanguageRefresh";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Button, Input, Layout, Text } from "@ui-kitten/components";
 import { useRouter } from "expo-router";
@@ -7,7 +11,13 @@ import { ScrollView, StyleSheet, View } from "react-native";
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { colorMultipliers, defaultRounds, updateSettings } = useGame();
+  const { colorMultipliers, defaultRounds, updateSettings, resetSettings } =
+    useGame();
+  const { currentLanguage, changeLanguage } = useLanguage();
+
+  // This hook ensures the component re-renders when language changes
+  useLanguageRefresh();
+
   const [redMultiplier, setRedMultiplier] = useState(
     colorMultipliers.red.toString()
   );
@@ -37,17 +47,78 @@ export default function SettingsScreen() {
     }, 1500);
   };
 
+  const handleRestoreDefaults = async () => {
+    await resetSettings();
+    // Update local state to reflect the reset
+    setRedMultiplier("6");
+    setBlueMultiplier("4");
+    setYellowMultiplier("5");
+    setBlackMultiplier("3");
+    setRounds("10");
+  };
+
+  const handleLanguageChange = async (language: "ku" | "en") => {
+    await changeLanguage(language);
+  };
+
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: "#F5F5F7" }}>
+    <ScrollView
+      contentContainerStyle={{ flexGrow: 1, backgroundColor: "#F5F5F7" }}
+    >
       <Layout style={styles.container}>
-        <Text style={styles.sectionTitle}>Settings</Text>
+        <Text style={styles.sectionTitle}>{t("settingsTitle")}</Text>
         <View style={styles.card}>
           <View style={styles.section}>
             <Text category="h6" style={styles.sectionTitle}>
-              Color Multipliers
+              {t("language")}
+            </Text>
+            <View style={styles.languageButtons}>
+              <Button
+                style={[
+                  styles.languageButton,
+                  currentLanguage === "ku" && styles.selectedLanguageButton,
+                ]}
+                status={currentLanguage === "ku" ? "primary" : "basic"}
+                appearance="filled"
+                onPress={() => handleLanguageChange("ku")}
+                accessoryLeft={() => (
+                  <MaterialIcons
+                    name="language"
+                    size={20}
+                    color={currentLanguage === "ku" ? "#FFFFFF" : "#8F9BB3"}
+                    style={styles.languageIcon}
+                  />
+                )}
+              >
+                {t("kurdish")}
+              </Button>
+              <Button
+                style={[
+                  styles.languageButton,
+                  currentLanguage === "en" && styles.selectedLanguageButton,
+                ]}
+                status={currentLanguage === "en" ? "primary" : "basic"}
+                appearance="filled"
+                onPress={() => handleLanguageChange("en")}
+                accessoryLeft={() => (
+                  <MaterialIcons
+                    name="language"
+                    size={20}
+                    color={currentLanguage === "en" ? "#FFFFFF" : "#8F9BB3"}
+                    style={styles.languageIcon}
+                  />
+                )}
+              >
+                {t("english")}
+              </Button>
+            </View>
+          </View>
+          <View style={styles.section}>
+            <Text category="h6" style={styles.sectionTitle}>
+              {t("colorMultipliersTitle")}
             </Text>
             <Input
-              label="Red Multiplier"
+              label={t("redMultiplier")}
               value={redMultiplier}
               onChangeText={setRedMultiplier}
               keyboardType="numeric"
@@ -62,7 +133,7 @@ export default function SettingsScreen() {
               )}
             />
             <Input
-              label="Blue Multiplier"
+              label={t("blueMultiplier")}
               value={blueMultiplier}
               onChangeText={setBlueMultiplier}
               keyboardType="numeric"
@@ -77,7 +148,7 @@ export default function SettingsScreen() {
               )}
             />
             <Input
-              label="Yellow Multiplier"
+              label={t("yellowMultiplier")}
               value={yellowMultiplier}
               onChangeText={setYellowMultiplier}
               keyboardType="numeric"
@@ -92,7 +163,7 @@ export default function SettingsScreen() {
               )}
             />
             <Input
-              label="Black Multiplier"
+              label={t("blackMultiplier")}
               value={blackMultiplier}
               onChangeText={setBlackMultiplier}
               keyboardType="numeric"
@@ -109,10 +180,10 @@ export default function SettingsScreen() {
           </View>
           <View style={styles.section}>
             <Text category="h6" style={styles.sectionTitle}>
-              Default Rounds
+              {t("defaultRoundsTitle")}
             </Text>
             <Input
-              label="Number of Rounds"
+              label={t("numberOfRoundsLabel")}
               value={rounds}
               onChangeText={setRounds}
               keyboardType="numeric"
@@ -128,14 +199,18 @@ export default function SettingsScreen() {
             />
           </View>
         </View>
-        <Button
-          style={styles.saveButton}
-          status="basic"
-          appearance="filled"
+        <ModernButton
+          title={t("saveChanges")}
           onPress={handleSave}
-        >
-          Save Changes
-        </Button>
+          style={styles.saveButton}
+          variant="primary"
+        />
+        <ModernButton
+          title={t("restoreDefaults")}
+          onPress={handleRestoreDefaults}
+          style={styles.restoreButton}
+          variant="secondary"
+        />
       </Layout>
     </ScrollView>
   );
@@ -166,25 +241,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginHorizontal: 16,
     marginBottom: 32,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
+    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.04)",
     elevation: 2,
     width: "92%",
   },
   saveButton: {
     marginTop: 40,
-    borderRadius: 16,
-    backgroundColor: "#0071E3",
-    paddingVertical: 20,
     width: "92%",
     alignSelf: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
-    elevation: 2,
+    marginBottom: 8,
+  },
+  restoreButton: {
+    marginTop: 8,
+    width: "92%",
+    alignSelf: "center",
+    marginBottom: 16,
   },
   input: {
     marginBottom: 15,
@@ -203,5 +274,27 @@ const styles = StyleSheet.create({
   icon: {
     width: 24,
     height: 24,
+  },
+  languageButtons: {
+    flexDirection: "row",
+    gap: 12,
+    width: "100%",
+  },
+  languageButton: {
+    flex: 1,
+    borderRadius: 14,
+    paddingVertical: 16,
+    backgroundColor: "#F7F8FA",
+    borderWidth: 1,
+    borderColor: "#E5E6EA",
+  },
+  selectedLanguageButton: {
+    backgroundColor: "#0071E3",
+    borderColor: "#0071E3",
+  },
+  languageIcon: {
+    width: 20,
+    height: 20,
+    marginRight: 8,
   },
 });

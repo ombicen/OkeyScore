@@ -1,5 +1,7 @@
+import ModernButton from "@/components/ModernButton";
+import { t } from "@/constants/Translations";
 import { useGame } from "@/contexts/GameContext";
-import { Button, Layout, Text } from "@ui-kitten/components";
+import { Layout, Text } from "@ui-kitten/components";
 import { useRouter } from "expo-router";
 import React from "react";
 import { Dimensions, ScrollView, StyleSheet, View } from "react-native";
@@ -55,18 +57,16 @@ export default function ResultsScreen() {
       >
         <Layout style={styles.container}>
           <View style={styles.emptyCard}>
-            <Text style={styles.sectionTitle}>No Game Data</Text>
+            <Text style={styles.sectionTitle}>{t("noRoundsPlayed")}</Text>
             <Text style={styles.sectionSubtitle}>
-              Start a new game to see results.
+              {t("resultsNoRoundsSubtitle")}
             </Text>
-            <Button
-              style={styles.resetButton}
-              status="basic"
-              appearance="filled"
+            <ModernButton
+              title={t("startNewGame")}
               onPress={handleNewGame}
-            >
-              Start New Game
-            </Button>
+              style={styles.resetButton}
+              variant="primary"
+            />
           </View>
         </Layout>
       </ScrollView>
@@ -79,7 +79,7 @@ export default function ResultsScreen() {
     >
       <Layout style={styles.container}>
         {/* --- Final Rankings --- */}
-        <Text style={styles.sectionTitle}>Final Rankings</Text>
+        <Text style={styles.sectionTitle}>{t("finalResults")}</Text>
         <View style={styles.rankingsContainer}>
           {sortedPlayers.map((name, index) => (
             <View
@@ -101,13 +101,15 @@ export default function ResultsScreen() {
         </View>
 
         {/* --- Round Details --- */}
-        <Text style={styles.sectionSubtitle}>Round Details</Text>
+        <Text style={styles.sectionSubtitle}>{t("roundDetails")}</Text>
         <View style={styles.roundsContainer}>
           {rounds.map((round, index) => (
             <View key={index} style={styles.roundCard}>
               <View style={styles.roundHeader}>
                 <View style={styles.roundInfo}>
-                  <Text style={styles.roundNr}>Round {index + 1}</Text>
+                  <Text style={styles.roundNr}>
+                    {t("roundNumber")} {index + 1}
+                  </Text>
                   <Text style={styles.roundColor}>
                     {getColorEmoji(round.color)}
                   </Text>
@@ -158,17 +160,15 @@ export default function ResultsScreen() {
           ))}
         </View>
 
-        <Button
-          style={styles.resetButton}
-          status="basic"
-          appearance="filled"
+        <ModernButton
+          title={t("startNewGame")}
           onPress={() => {
             resetGame();
             router.replace("/(tabs)/add-players");
           }}
-        >
-          Reset Game
-        </Button>
+          style={styles.resetButton}
+          variant="primary"
+        />
       </Layout>
     </ScrollView>
   );
@@ -190,10 +190,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     alignItems: "center",
     marginTop: 64,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
+    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.08)",
     elevation: 2,
     width: "100%",
   },
@@ -225,10 +222,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingVertical: 16,
     paddingHorizontal: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
+    boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.04)",
     elevation: 2,
   },
   winnerCard: {
@@ -272,10 +266,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 16,
     padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
+    boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.04)",
     elevation: 2,
   },
   roundHeader: {
@@ -354,15 +345,13 @@ const styles = StyleSheet.create({
     color: "#0071E3",
   },
   resetButton: {
-    marginTop: 32,
-    borderRadius: 16,
-    backgroundColor: "#0071E3",
-    paddingVertical: 16,
     width: "100%",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
-    elevation: 2,
+    borderRadius: 6,
+    height: 48,
+    marginTop: 32,
+    marginBottom: 16,
+  },
+  icon: {
+    marginRight: 8,
   },
 });

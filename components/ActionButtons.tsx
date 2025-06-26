@@ -1,7 +1,9 @@
+import { t } from "@/constants/Translations";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Button } from "@ui-kitten/components";
 import React from "react";
 import { StyleSheet, View } from "react-native";
+import ModernButton from "./ModernButton";
 
 interface ActionButtonsProps {
   currentPlayerIndex: number;
@@ -10,7 +12,9 @@ interface ActionButtonsProps {
   onNextPlayer: () => void;
   onBack: () => void;
   onReset?: () => void;
+  onResetRoundsOnly?: () => void;
   showReset?: boolean;
+  showResetRoundsOnly?: boolean;
 }
 
 const ActionButtons: React.FC<ActionButtonsProps> = ({
@@ -20,28 +24,23 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
   onNextPlayer,
   onBack,
   onReset,
+  onResetRoundsOnly,
   showReset = false,
+  showResetRoundsOnly = false,
 }) => {
   return (
     <View style={styles.actionButtons}>
-      <Button
+      <ModernButton
+        title={
+          currentPlayerIndex < totalPlayers - 1
+            ? t("nextPlayer")
+            : t("finishRound")
+        }
         onPress={onNextPlayer}
-        style={[styles.actionButton, styles.primaryAction]}
         disabled={!hasPoints}
-        size="large"
-        accessoryRight={() => (
-          <MaterialIcons
-            name={
-              currentPlayerIndex < totalPlayers - 1 ? "arrow-forward" : "check"
-            }
-            size={24}
-            color="#FFFFFF"
-            style={styles.icon}
-          />
-        )}
-      >
-        {currentPlayerIndex < totalPlayers - 1 ? "Next Player" : "Finish Round"}
-      </Button>
+        style={styles.actionButton}
+        variant="primary"
+      />
       <Button
         onPress={onBack}
         style={[styles.actionButton, styles.secondaryAction]}
@@ -56,8 +55,26 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
           />
         )}
       >
-        Back
+        {t("back")}
       </Button>
+      {showResetRoundsOnly && onResetRoundsOnly && (
+        <Button
+          onPress={onResetRoundsOnly}
+          style={styles.resetButton}
+          status="basic"
+          size="large"
+          accessoryRight={() => (
+            <MaterialIcons
+              name="replay"
+              size={24}
+              color="#8F9BB3"
+              style={styles.icon}
+            />
+          )}
+        >
+          {t("resetRoundsOnly")}
+        </Button>
+      )}
       {showReset && onReset && (
         <Button
           onPress={onReset}
@@ -73,7 +90,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
             />
           )}
         >
-          Reset Game
+          {t("reset")}
         </Button>
       )}
     </View>
@@ -84,20 +101,14 @@ const styles = StyleSheet.create({
   actionButtons: {
     width: "100%",
     gap: 12,
+    marginBottom: 16,
   },
   actionButton: {
-    borderRadius: 16,
-    height: 56,
+    borderRadius: 6,
+    height: 48,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
-  },
-  primaryAction: {
-    backgroundColor: "#0071E3",
+    marginBottom: 8,
   },
   secondaryAction: {
     backgroundColor: "#F8F9FA",
@@ -106,16 +117,25 @@ const styles = StyleSheet.create({
   },
   resetButton: {
     backgroundColor: "#F8F9FA",
-    borderRadius: 16,
-    paddingVertical: 16,
+    borderRadius: 6,
+    paddingVertical: 14,
     paddingHorizontal: 24,
     borderWidth: 2,
     borderColor: "#E9ECEF",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
+    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.06)",
     elevation: 2,
+    marginBottom: 8,
+  },
+  resetRoundsButton: {
+    backgroundColor: "#F8F9FA",
+    borderRadius: 6,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderWidth: 2,
+    borderColor: "#E9ECEF",
+    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.06)",
+    elevation: 2,
+    marginBottom: 8,
   },
   icon: {
     width: 24,
